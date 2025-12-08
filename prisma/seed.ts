@@ -1,0 +1,35 @@
+import "dotenv/config";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { env } from "../src/config/env/server";
+import { faker } from "@faker-js/faker";
+import { FeedbackStatus } from "../generated/prisma/enums";
+import { PrismaClient } from "../generated/prisma/client";
+
+const adapter = new PrismaBetterSqlite3({
+  url: env.DATABASE_URL,
+});
+
+const prisma = new PrismaClient({
+  adapter,
+});
+
+const SEED_COUNT = 100;
+
+async function seed() {
+  await prisma.feedback.createMany({
+    data: Array.from({ length: SEED_COUNT }).map(() => ({
+      title: faker.lorem.sentence(),
+      description: faker.lorem.paragraph(),
+      status: faker.helpers.arrayElement(Object.values(FeedbackStatus)),
+      upvotes: faker.number.int({ min: 0, max: 10000 }),
+    })),
+  });
+}
+
+seed()
+  .catch((e) => {
+    console.error(e);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
