@@ -1,3 +1,6 @@
+import { Navbar } from "@/components/navbar";
+import { Toaster } from "@/components/ui/sonner";
+import { QueryClientProvider } from "@/providers/query-client.provider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -27,7 +30,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Navbar />
+        <QueryClientProvider>
+          <main className="min-h-screen">{children}</main>
+        </QueryClientProvider>
+        <Toaster position="top-center" />
       </body>
     </html>
   );
