@@ -60,3 +60,13 @@ bun db:seed # or npm run db:seed
 ```bash
 bun dev # or npm run dev
 ```
+
+### Known Issues
+
+- **Optimistic upvotes do not sync across filters**
+
+  On the Feedback List page, when a user upvotes a feedback item, the optimistic update only applies to the currently active filter (e.g., `Open`). However, other cached filters such as `All` do not get updated.
+
+  **Example:**  
+  If a user is on the **Open** filter and upvotes a feedback item, the optimistic cache updates correctly for **Open**, but the **All** filter still shows the old upvote count. This results in inconsistent UI between different filtered views.
+
