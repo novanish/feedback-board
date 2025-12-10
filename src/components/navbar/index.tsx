@@ -30,7 +30,7 @@ export function Navbar() {
 
           <div className="hidden items-center gap-3 md:flex">
             <Button size="sm" asChild>
-              <Link href="/feedback/create">Get Started</Link>
+              <Link href="/feedback/create">Give Feedback</Link>
             </Button>
           </div>
 

@@ -5,7 +5,6 @@ import {
   UpdateFeedbackInput,
   UpdateFeedBackSchema,
 } from "@/features/feedback/schema/update-feedback.schema";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 
 export async function updateFeedback(unsafeInput: UpdateFeedbackInput) {
@@ -19,6 +18,4 @@ export async function updateFeedback(unsafeInput: UpdateFeedbackInput) {
     where: { id: result.data.id },
     data: result.data,
   });
-
-  redirect("/feedback");
 }

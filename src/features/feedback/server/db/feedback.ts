@@ -1,15 +1,16 @@
 import prisma from "@/database";
+import { isValidStatus } from "@/features/feedback/utils/is-valid-status";
 
 const TOTAL_LENGTH = 10;
 
-export async function getFeedbacks(cursor: string | null) {
+export async function getFeedbacks(cursor: string | null, status?: unknown) {
   const decodedCursor = cursor ? decodeCursor(cursor) : null;
 
-  console.log("Decoded Cursor:", decodedCursor);
   const feedbacks = await prisma.feedback.findMany({
     take: TOTAL_LENGTH + 1,
     cursor: decodedCursor ?? undefined,
     omit: { updatedAt: true },
+    where: status && isValidStatus(status) ? { status } : undefined,
     orderBy: [{ createdAt: "desc" }, { id: "asc" }],
   });
 

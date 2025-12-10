@@ -31,7 +31,7 @@ export function MobileMenu({ setIsOpen }: Props) {
 
       <div className="flex gap-3 pt-3">
         <Button size="sm" className="flex-1" asChild>
-          <Link href="/feedback/create">Get Started</Link>
+          <Link href="/feedback/create">Give Feedbackcls</Link>
         </Button>
       </div>
     </div>

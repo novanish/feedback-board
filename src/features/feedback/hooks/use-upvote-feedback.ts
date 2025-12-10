@@ -4,6 +4,5 @@ import { useMutation } from "@tanstack/react-query";
 export function useUpvoteFeedback() {
   return useMutation({
     mutationFn: upvoteFeedback,
-    onSuccess: () => {},
   });
 }

@@ -12,14 +12,11 @@ import {
 import { Metadata } from "next";
 import React from "react";
 
-export const dynamic = "force-dynamic";
-
 export default async function FeedbackPage({
   searchParams,
 }: PageProps<"/feedback">) {
   const { status } = await searchParams;
   const { feedbacks, nextCursor } = await getFeedbacks(null, status);
-
   const queryClient = new QueryClient();
 
   await queryClient.setQueryData(

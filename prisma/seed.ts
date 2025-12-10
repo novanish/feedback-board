@@ -16,6 +16,11 @@ const prisma = new PrismaClient({
 const SEED_COUNT = 100;
 
 async function seed() {
+  console.time("Clear old data");
+  await prisma.feedback.deleteMany();
+  console.timeEnd("Clear old data");
+
+  console.time("Seeding data...");
   await prisma.feedback.createMany({
     data: Array.from({ length: SEED_COUNT }).map(() => ({
       title: faker.lorem.sentence(),
@@ -24,6 +29,7 @@ async function seed() {
       upvotes: faker.number.int({ min: 0, max: 10000 }),
     })),
   });
+  console.timeEnd("Seeding data...");
 }
 
 seed()

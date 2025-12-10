@@ -9,30 +9,46 @@ import { EmptyFeedback } from "@/features/feedback/components/empty-feedback";
 import { FeedbackCard } from "@/features/feedback/components/feedback-card";
 import { FeedbackListError } from "@/features/feedback/components/feedback-list-error";
 import { useFeedbacks } from "@/features/feedback/hooks/use-feedbacks";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import { FeedbackCardSkeleton } from "@/features/feedback/components/feedback-card-skeleton";
 
 export function FeedbackList() {
+  const [upovotedFeedbackIds, setUpvotedFeedbackIds] = useLocalStorage<
+    Array<string>
+  >("upvotes", []);
+
   const {
     data,
     fetchNextPage,
     isFetchingNextPage,
     isError,
-    isFetchNextPageError,
     refetch,
     hasNextPage,
+    isPending,
     isFetching,
   } = useFeedbacks();
 
   const feedbacks = data?.pages.flatMap((page) => page.feedbacks) ?? [];
+  if (isError && feedbacks.length === 0) {
+    return <FeedbackListError onRetry={refetch} />;
+  }
 
-  const isEmpty =
-    feedbacks.length === 0 && !hasNextPage && !isFetching && !isError;
+  if (isPending) {
+    return (
+      <div className="space-y-6">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <FeedbackCardSkeleton key={index} />
+        ))}
+      </div>
+    );
+  }
 
-  if (isEmpty) {
+  if (feedbacks.length === 0) {
     return <EmptyFeedback />;
   }
 
   return (
-    <div className="space-y-6">
+    <div className={"space-y-6"}>
       <InView
         rootMargin="300px"
         onChange={(inView) => {
@@ -45,7 +61,12 @@ export function FeedbackList() {
           return (
             <React.Fragment>
               {feedbacks.map((feedback) => (
-                <FeedbackCard key={feedback.id} feedback={feedback} />
+                <FeedbackCard
+                  key={feedback.id}
+                  feedback={feedback}
+                  setUpvotedFeedbackIds={setUpvotedFeedbackIds}
+                  upvotedFeedbackIds={upovotedFeedbackIds}
+                />
               ))}
 
               {hasNextPage ? (
@@ -61,18 +82,10 @@ export function FeedbackList() {
           );
         }}
       </InView>
-      {!(isFetchingNextPage || isFetching) &&
-      (isError || isFetchNextPageError) ? (
-        <FeedbackListError
-          onRetry={() => {
-            if (hasNextPage) {
-              fetchNextPage();
-            } else {
-              refetch();
-            }
-          }}
-        />
-      ) : null}
+
+      {isError && feedbacks.length > 0 && (
+        <FeedbackListError onRetry={refetch} />
+      )}
     </div>
   );
 }

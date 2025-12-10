@@ -3,8 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {
-    const cursor = request.nextUrl.searchParams.get("cursor");
-    const { feedbacks, nextCursor } = await getFeedbacks(cursor);
+    const searchParams = request.nextUrl.searchParams;
+    const cursor = searchParams.get("cursor");
+    const status = searchParams.get("status");
+    const { feedbacks, nextCursor } = await getFeedbacks(cursor, status);
 
     return NextResponse.json({ feedbacks, nextCursor });
   } catch (error) {

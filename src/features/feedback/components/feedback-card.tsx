@@ -3,26 +3,43 @@
 import { Button } from "@/components/ui/button";
 import { statusLabels } from "@/features/feedback/constants/status-labels.const";
 import { statusStyles } from "@/features/feedback/constants/status-styles.const";
+import { useFeedbackFilter } from "@/features/feedback/hooks/use-feedback-filter";
 import { useUpvoteFeedback } from "@/features/feedback/hooks/use-upvote-feedback";
+import { optimisticUpdateFeedback } from "@/features/feedback/utils/update-feedbacks-cache";
 import type { Feedback } from "@/generated/prisma/client";
 import { cn, formatUpvotes } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import { ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
-import { useState } from "react";
+import { useMemo } from "react";
 
 interface Props {
   feedback: Omit<Feedback, "createdAt" | "updatedAt">;
+  upvotedFeedbackIds: string[];
+  setUpvotedFeedbackIds: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-export function FeedbackCard({ feedback }: Props) {
-  const [isUpvoted, setIsUpvoted] = useState(false);
+export function FeedbackCard({
+  feedback,
+  setUpvotedFeedbackIds,
+  upvotedFeedbackIds,
+}: Props) {
   const upvoteMutation = useUpvoteFeedback();
+  const queryClient = useQueryClient();
+  const filter = useFeedbackFilter();
+  const isUpvoted = useMemo(() => {
+    return upvotedFeedbackIds.includes(feedback.id);
+  }, [feedback.id, upvotedFeedbackIds]);
 
   const handleUpvoteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsUpvoted((prev) => !prev);
+    setUpvotedFeedbackIds((prev) => [...prev, feedback.id]);
     upvoteMutation.mutate({ feedbackId: feedback.id });
+    optimisticUpdateFeedback(queryClient, filter, feedback.id, (fb) => ({
+      ...fb,
+      upvotes: fb.upvotes + 1,
+    }));
   };
 
   const statusStyle = statusStyles[feedback.status];
@@ -52,7 +69,7 @@ export function FeedbackCard({ feedback }: Props) {
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleUpvoteClick}
+          onClick={isUpvoted ? undefined : handleUpvoteClick}
           className={cn("gap-2 transition-colors", {
             "text-primary bg-primary/10 hover:bg-primary/20": isUpvoted,
             "text-muted-foreground hover:text-primary hover:bg-primary/10":

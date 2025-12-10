@@ -5,7 +5,6 @@ import {
   CreateFeedbackInput,
   CreateFeedBackSchema,
 } from "@/features/feedback/schema/create-feedback.schema";
-import { redirect } from "next/navigation";
 import z from "zod";
 
 export async function createFeedback(unsafeInput: CreateFeedbackInput) {
@@ -18,6 +17,4 @@ export async function createFeedback(unsafeInput: CreateFeedbackInput) {
   await prisma.feedback.create({
     data: result.data,
   });
-
-  redirect("/feedback");
 }
