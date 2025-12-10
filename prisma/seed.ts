@@ -4,10 +4,16 @@ import { env } from "../src/config/env/server";
 import { faker } from "@faker-js/faker";
 import { FeedbackStatus } from "../generated/prisma/enums";
 import { PrismaClient } from "../generated/prisma/client";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 
-const adapter = new PrismaBetterSqlite3({
-  url: env.DATABASE_URL,
-});
+const adapter = env.TURSO_AUTH_TOKEN
+  ? new PrismaLibSql({
+      url: env.DATABASE_URL,
+      authToken: env.TURSO_AUTH_TOKEN,
+    })
+  : new PrismaBetterSqlite3({
+      url: env.DATABASE_URL,
+    });
 
 const prisma = new PrismaClient({
   adapter,
