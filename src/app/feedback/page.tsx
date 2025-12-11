@@ -14,12 +14,14 @@ import { Metadata } from "next";
 import React, { Suspense } from "react";
 
 export default async function FeedbackPage(props: PageProps<"/feedback">) {
+  const { status } = await props.searchParams;
+
   return (
     <React.Fragment>
       <div className="mx-auto max-w-lg space-y-6 py-7">
         <FeedbackFilters />
         <Suspense fallback={<FeedbackListSkeleton />}>
-          <Feedbacks {...props} />
+          <Feedbacks status={isValidStatus(status) ? status : null} />
         </Suspense>
         <ScrollToTop />
       </div>
@@ -27,8 +29,7 @@ export default async function FeedbackPage(props: PageProps<"/feedback">) {
   );
 }
 
-async function Feedbacks({ searchParams }: PageProps<"/feedback">) {
-  const { status } = await searchParams;
+async function Feedbacks({ status }: { status: string | null }) {
   const { feedbacks, nextCursor } = await getFeedbacks(null, status);
   const queryClient = new QueryClient();
 
