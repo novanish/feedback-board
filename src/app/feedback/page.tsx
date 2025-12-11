@@ -1,6 +1,7 @@
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { FeedbackFilters } from "@/features/feedback/components/feedback-filters";
 import { FeedbackList } from "@/features/feedback/components/feedback-list";
+import { FeedbackListSkeleton } from "@/features/feedback/components/feedback-list-skeleton";
 import { FeedbackKeys } from "@/features/feedback/constants/feedback-keys.const";
 import { getFeedbacks } from "@/features/feedback/server/db/feedback";
 import { isValidStatus } from "@/features/feedback/utils/is-valid-status";
@@ -10,11 +11,23 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { Metadata } from "next";
-import React from "react";
+import React, { Suspense } from "react";
 
-export default async function FeedbackPage({
-  searchParams,
-}: PageProps<"/feedback">) {
+export default async function FeedbackPage(props: PageProps<"/feedback">) {
+  return (
+    <React.Fragment>
+      <div className="mx-auto max-w-lg space-y-6 py-7">
+        <FeedbackFilters />
+        <Suspense fallback={<FeedbackListSkeleton />}>
+          <Feedbacks {...props} />
+        </Suspense>
+        <ScrollToTop />
+      </div>
+    </React.Fragment>
+  );
+}
+
+async function Feedbacks({ searchParams }: PageProps<"/feedback">) {
   const { status } = await searchParams;
   const { feedbacks, nextCursor } = await getFeedbacks(null, status);
   const queryClient = new QueryClient();
@@ -28,15 +41,9 @@ export default async function FeedbackPage({
   );
 
   return (
-    <React.Fragment>
-      <div className="mx-auto max-w-lg space-y-6 py-7">
-        <FeedbackFilters />
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <FeedbackList />
-        </HydrationBoundary>
-        <ScrollToTop />
-      </div>
-    </React.Fragment>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <FeedbackList />
+    </HydrationBoundary>
   );
 }
 

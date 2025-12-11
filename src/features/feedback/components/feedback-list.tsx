@@ -10,7 +10,7 @@ import { FeedbackCard } from "@/features/feedback/components/feedback-card";
 import { FeedbackListError } from "@/features/feedback/components/feedback-list-error";
 import { useFeedbacks } from "@/features/feedback/hooks/use-feedbacks";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import { FeedbackCardSkeleton } from "@/features/feedback/components/feedback-card-skeleton";
+import { FeedbackListSkeleton } from "@/features/feedback/components/feedback-list-skeleton";
 
 export function FeedbackList() {
   const [upovotedFeedbackIds, setUpvotedFeedbackIds] = useLocalStorage<
@@ -34,13 +34,7 @@ export function FeedbackList() {
   }
 
   if (isPending) {
-    return (
-      <div className="space-y-6">
-        {Array.from({ length: 5 }).map((_, index) => (
-          <FeedbackCardSkeleton key={index} />
-        ))}
-      </div>
-    );
+    return <FeedbackListSkeleton />;
   }
 
   if (feedbacks.length === 0) {
